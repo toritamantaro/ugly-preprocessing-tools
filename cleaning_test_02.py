@@ -12,7 +12,7 @@ from cleaner.splitter_blingfire import BlingfireSplit
 
 
 def main():
-    ''' --- 処理前のデータローダの中身確認  --- '''
+    ''' 処理前のデータローダの中身確認 '''
     # dataset_name = "cerebras/SlimPajama-627B"
     dataset_name = "DKYoon/SlimPajama-6B"
     dataset_stream = load_dataset(dataset_name, split='train', streaming=True)
