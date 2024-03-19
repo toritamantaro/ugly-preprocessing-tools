@@ -1,15 +1,28 @@
 from typing import Generator, Iterator, List, Dict, Tuple, Union, Optional, overload
 from collections import Counter
 
-import nltk
+from textblob import TextBlob
 
 from util.text_tool_base import TextProcessorBase
 
 
-class PartsFilterNltk(TextProcessorBase):
+class PartsFilterTextblob(TextProcessorBase):
     """
     以下を参考にしました
-    https://github.com/KanHatakeyama/JapaneseWarcParser/blob/main/mc4s/src/cleaner/parts_filter.py
+    https://textblob.readthedocs.io/en/dev/quickstart.html#part-of-speech-tagging
+
+    pip install textblob
+
+        from textblob import TextBlob
+
+        wiki = TextBlob("Python is a high-level, general-purpose programming language.")
+        print(wiki.tags)
+
+        -> [('Python', 'NNP'), ('is', 'VBZ'), ('a', 'DT'), ('high-level', 'JJ'), ('general-purpose', 'JJ'), ('programming', 'NN'), ('language', 'NN')]
+
+        Noun Phrase Extraction
+        wiki.noun_phrases
+        -> WordList(['python'])
     """
 
     def __init__(
@@ -22,25 +35,19 @@ class PartsFilterNltk(TextProcessorBase):
         self._threshold: float = threshold
         self._min_length: int = min_length
 
-        # word_tokenize（分かち書き）のダウンロード
-        nltk.download('punkt')
-        # perception_tagger（品詞の取得）のダウンロード
-        nltk.download('averaged_perceptron_tagger')
-
     @staticmethod
     def parts_count(
             text: str,
             return_word_count: bool
     ) -> Union[Tuple[Counter, int], Tuple[Counter, int, Counter]]:
-        morph = nltk.word_tokenize(text)
-        parsed = nltk.pos_tag(morph)
+        parsed = TextBlob(text)
 
         # 品詞をカウントするためのCounterオブジェクト
         pos_counter = Counter()
         word_counter = Counter()
 
         all_counts = 0
-        for word, pos in parsed:
+        for word, pos in parsed.tags:
             if not pos.isalpha():
                 continue
             if return_word_count:
@@ -53,6 +60,7 @@ class PartsFilterNltk(TextProcessorBase):
             counts = counts + (word_counter,)
 
         return counts
+
 
     def process_handling(
             self,
@@ -81,7 +89,7 @@ class PartsFilterNltk(TextProcessorBase):
 
 if __name__ == "__main__":
     '''
-    > python -m cleaner.filter_nltk
+    > python -m cleaner.filter_textblob
     '''
 
     from util.versatile_tool import stop_watch
@@ -92,16 +100,17 @@ if __name__ == "__main__":
         'book car ship dog cat bed sea.',
     ]
 
-    texts = texts * 1000 # 2.034sec
     # texts = texts * 3
 
-    parts_filter = PartsFilterNltk(threshold=0.9, min_length=10)
+    parts_filter = PartsFilterTextblob(threshold=0.9, min_length=10)
 
 
     @stop_watch
     def func():
         for text in parts_filter(texts):
-            # print(text)
-            pass
+            print(text)
+            # pass
+
 
     func()
+    #

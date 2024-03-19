@@ -5,10 +5,14 @@ from ja_sentence_segmenter.concatenate.simple_concatenator import concatenate_ma
 from ja_sentence_segmenter.normalize.neologd_normalizer import normalize
 from ja_sentence_segmenter.split.simple_splitter import split_newline, split_punctuation
 
+
+
 from util.text_tool_base import make_pipeline
 from util.versatile_tool import stop_watch
 from cleaner.filter_mecab import PartsFilterMecab
 from cleaner.filter_nltk import PartsFilterNltk
+from cleaner.filter_textblob import PartsFilterTextblob
+from cleaner.filter_spacy import PartsFilterSpacy
 from cleaner.director_paragraph_filter import ParagraphCleaningDirector
 from cleaner.filter_norm_jp import NormalizeFilterJp
 from cleaner.filter_hojichar import FilterHojichar, JA_LIST, EN_LIST
@@ -31,6 +35,7 @@ def japanese():
     concat_tail_te = functools.partial(concatenate_matching, remove_former_matched=False)
     paragraph_splitter = make_pipeline(normalize, split_newline, concat_tail_te, split_punc)
 
+    # mecabの導入方法によって、解析結果を分割する文字などを変える必要がある
     sentence_cleaner = PartsFilterMecab(threshold=0.9, min_length=10, parts_index=4, split_key="-")
     # sentence_cleaner = PartsFilterMecab(threshold=0.9, min_length=10, parts_index=1, split_key=",")
 
@@ -65,7 +70,7 @@ def english():
         "I am going to cum, but you can close your eyes and let me cum in your mouth ### Assistant: Oh my god, I can feel it growing in my pussy.Tell me where your hands are. ### Assistant: Mmmm.. tell me where you want them.I want to kiss you first and feel your tounge on mine. ### Assistant: My pussy is just tooo wet..For you",
     ]
 
-    # texts = texts * 1_000
+    texts = texts * 1_000
     # texts = texts * 2
 
     ''' normalize '''
@@ -77,6 +82,11 @@ def english():
     paragraph_splitter = make_pipeline(normalize, split_newline, concat_tail_te, split_punc)
 
     sentence_cleaner = PartsFilterNltk(threshold=0.9, min_length=10)
+    # sentence_cleaner = PartsFilterTextblob(threshold=0.9, min_length=10)
+
+    # # mecabの導入方法によって、解析結果を分割する文字などを変える必要がある
+    # # sentence_cleaner = PartsFilterMecab(threshold=0.9, min_length=10, parts_index=4, split_key="-")
+    # sentence_cleaner = PartsFilterMecab(threshold=0.9, min_length=10, parts_index=1, split_key=",")
 
     paragraph_cleaner = ParagraphCleaningDirector(
         paragraph_splitter=paragraph_splitter,
@@ -96,8 +106,8 @@ def english():
     @stop_watch
     def func():
         for text in processor(texts):
-            print(text)
-            # pass
+            # print(text)
+            pass
 
     func()
 

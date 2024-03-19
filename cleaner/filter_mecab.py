@@ -125,9 +125,11 @@ if __name__ == "__main__":
     #     'book car ship dog cat bed sea.',
     # ]
 
-    texts = texts * 3
+    # texts = texts * 3
 
-    parts_filter = PartsFilterMecab(threshold=0.9, min_length=10)
+    # mecabの導入方法によって、解析結果を分割する文字などを変える必要がある
+    # parts_filter = PartsFilterMecab(threshold=0.9, min_length=10, parts_index=4, split_key="-")
+    parts_filter = PartsFilterMecab(threshold=0.9, min_length=10, parts_index=1, split_key=",")
 
     @stop_watch
     def func():
